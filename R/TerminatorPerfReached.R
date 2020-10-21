@@ -11,7 +11,7 @@
 #'
 #' @section Parameters:
 #' \describe{
-#' \item{`level`}{Named `numeric(1)`\cr
+#' \item{`level`}{`numeric(1)`\cr
 #' Performance level that needs to be reached, default is 0. Terminates if the
 #' performance exceeds (respective measure has to be maximized) or falls below
 #' (respective measure has to be minimized) this value.}
@@ -43,7 +43,7 @@ TerminatorPerfReached = R6Class("TerminatorPerfReached",
     #' @param archive ([Archive]).
     #' @return `logical(1)`.
     is_terminated = function(archive) {
-      pv = self$param_set$values
+      level = self$param_set$values$level
       ycol = archive$cols_y
       minimize = "minimize" %in% archive$codomain$tags
 
@@ -51,11 +51,11 @@ TerminatorPerfReached = R6Class("TerminatorPerfReached",
         return(FALSE)
       }
 
-      ydata = archive$data()[, ycol, , drop = FALSE, with = FALSE]
+      ydata = get_private(archive)$.data[[ycol]]
       if (minimize) {
-        ydata <= pv$level
+        any(ydata <= level)
       } else {
-        ydata >= pv$level
+        any(ydata >= level)
       }
     }
   )
