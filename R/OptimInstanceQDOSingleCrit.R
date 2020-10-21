@@ -1,4 +1,4 @@
-#' @title Optimization Instance for quality diversity optimization with budget and archive
+#' @title Optimization Instance for QDO with budget and archive
 #'
 #' @description
 #' Wraps a single-criteria [Objective] function with extra services for
@@ -22,6 +22,7 @@ OptimInstanceQDOSingleCrit = R6Class("OptimInstanceQDOSingleCrit",
     #' Creates a new instance of this [R6][R6::R6Class] class.
     #'
     #' @param objective ([Objective]).
+    #' @param feature ([Feature]).
     #' @param terminator ([Terminator]).
     initialize = function(objective, feature, search_space = NULL, terminator) {
       if (objective$codomain$length > 1) {
@@ -35,6 +36,7 @@ OptimInstanceQDOSingleCrit = R6Class("OptimInstanceQDOSingleCrit",
     #' and estimated performance value here. For internal use.
     #'
     #' @param y (`numeric(1)`)\cr
+    #' @param g (`numeric()`)\cr
     #' Optimal outcome.
     assign_result = function(xdt, y, g) {
       # FIXME: We could have one way that just lets us put a 1xn DT as result directly.
@@ -45,7 +47,7 @@ OptimInstanceQDOSingleCrit = R6Class("OptimInstanceQDOSingleCrit",
       assert_names(names(y), permutation.of = self$objective$codomain$ids())
       assert_names(names(g), permutation.of = self$feature$feature_function$codomain$ids())
       x_domain = transform_xdt_to_xss(xdt, self$search_space)[[1L]]
-      private$.result = cbind(xdt, x_domain = list(x_domain), t(y), g) # t(y) so the name of y stays
+      private$.result = cbind(xdt, x_domain = list(x_domain), t(y), t(g)) # t(y) so the name of y stays
     }
   )
 )

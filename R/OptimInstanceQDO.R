@@ -1,4 +1,4 @@
-#' @title Optimization Instance for quality diversity optimization with budget and archive
+#' @title Optimization Instance for QDO with budget and archive
 #'
 #' @description
 #' Abstract base class.
@@ -7,7 +7,7 @@
 #' The [Optimizer] writes the final result to the `.result` field by using
 #' the `$assign_result()` method. `.result` stores a [data.table::data.table]
 #' consisting of x values in the *search space*, (transformed) x values in the
-#' *domain space* and y values in the *codomain space* of the [Objective]. The
+#' *domain space* and y values in the *cfunction$codomain, odomain space* of the [Objective]. The
 #' user can access the results with active bindings (see below).
 #'
 #' @template param_xdt
@@ -50,8 +50,7 @@ OptimInstanceQDO = R6Class("OptimInstanceQDO",
         assert_param_set(search_space)
       }
       self$terminator = assert_terminator(terminator, self)
-      self$archive = ArchiveQDO$new(search_space = self$search_space,
-        codomain = objective$codomain, niches = feature$niche_boundaries$niches)
+      self$archive = ArchiveQDO$new(search_space = self$search_space, codomain_obj = objective$codomain, codomain_ft = feature$feature_function$codomain, niches = feature$niche_boundaries$niches)
 
       if (!all(self$search_space$is_number)) {
         private$.objective_function = objective_error
@@ -102,7 +101,6 @@ OptimInstanceQDO = R6Class("OptimInstanceQDO",
     #' the *search space* of the [OptimInstance] object. Can contain additional
     #' columns for extra information.
     eval_batch = function(xdt) {
-      # FIXME: niche
       if (self$is_terminated || self$terminator$is_terminated(self$archive)) {
         self$is_terminated = TRUE
         stop(terminated_error(self))
@@ -115,9 +113,9 @@ OptimInstanceQDO = R6Class("OptimInstanceQDO",
       niche = self$feature$niche_boundaries$get_niche_dt(gdt)
       self$archive$add_evals(xdt, xss_trafoed, ydt, gdt, niche)
       lg$info("Result of batch %i:", self$archive$n_batch)
-      lg$info(capture.output(print(cbind(xdt, ydt, gdt),
+      lg$info(capture.output(print(cbind(xdt, ydt, gdt, niche),
         class = FALSE, row.names = FALSE, print.keys = FALSE)))
-      return(invisible(ydt))  # FIXME: gdt
+      return(invisible(cbind(ydt, gdt, niche)))
     },
 
     #' @description

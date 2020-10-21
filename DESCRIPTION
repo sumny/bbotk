@@ -63,11 +63,15 @@ Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.1.1
 Collate:
     'Archive.R'
+    'ArchiveQDO.R'
+    'Feature.R'
     'Objective.R'
     'ObjectiveRFun.R'
     'ObjectiveRFunDt.R'
     'OptimInstance.R'
     'OptimInstanceMultiCrit.R'
+    'OptimInstanceQDO.R'
+    'OptimInstanceQDOSingleCrit.R'
     'OptimInstanceSingleCrit.R'
     'mlr_optimizers.R'
     'Optimizer.R'

@@ -13,7 +13,6 @@
 #' values can be added with the `$add_evals()` method. This however is usually
 #' done through the evaluation of the [OptimInstance] by the [Optimizer].
 #'
-#' @template param_codomain
 #' @template param_search_space
 #' @template param_xdt
 #' @template param_ydt
@@ -25,11 +24,16 @@ ArchiveQDO = R6Class("ArchiveQDO",
     #' Search space of objective.
     search_space = NULL,
 
-    #' @field codomain ([paradox::ParamSet])\cr
+    #' @field codomain_obj ([paradox::ParamSet])\cr
     #' Codomain of objective function.
-    codomain = NULL,
+    codomain_obj = NULL,
 
-    #' @field niches
+    #' @field codomain_ft ([paradox::ParamSet])\cr
+    #' Codomain of feature function.
+    codomain_ft = NULL,
+
+    #' @field niches (`character()`)\cr
+    #' Labels of the niches of the feature function.
     niches = NULL,
 
     #' @field start_time ([POSIXct]).
@@ -41,13 +45,21 @@ ArchiveQDO = R6Class("ArchiveQDO",
     #' @description
     #' Creates a new instance of this [R6][R6::R6Class] class.
     #'
+    #' @param codomain_obj ([paradox::ParamSet])\cr
+    #' Specifies codomain of objective function.
+    #' Most importantly the tags of each output "Parameter" define whether it should
+    #' be minimized or maximized.  The default is to minimize each component.
+    #' @param codomain_ft ([paradox::ParamSet])\cr
+    #' Specifies codomain of feature function.
+    #' @param niches (`character()`)\cr
+    #' Labels of the niches of the feature function.
     #' @param check_values (`logical(1)`)\cr
     #' Should x-values that are added to the archive be checked for validity?
-    #' Search space that is logged into archive.
-    initialize = function(search_space, codomain, niches, check_values = TRUE) {
+    initialize = function(search_space, codomain_obj, codomain_ft, niches, check_values = TRUE) {
       self$search_space = assert_param_set(search_space)
-      self$codomain = assert_param_set(codomain)
-      self$niches = niches  # FIXME: assert
+      self$codomain_obj = assert_param_set(codomain_obj)
+      self$codomain_ft = assert_param_set(codomain_ft)
+      self$niches = niches  # FIXME: assert necessary?
       self$check_values = assert_flag(check_values)
       private$.data = data.table()
     },
@@ -57,40 +69,44 @@ ArchiveQDO = R6Class("ArchiveQDO",
     #'
     #' @param xss_trafoed (`list()`)\cr
     #' Transformed point(s) in the *domain space*.
+    #' @param gdt ([data.table::data.table()])\cr
+    #' Feature function values(s).
+    #' @param niche ([data.table::data.table()])\cr
+    #' Niche labels.
+    #' Transformed point(s) in the *domain space*.
     add_evals = function(xdt, xss_trafoed, ydt, gdt, niche) {
       assert_data_table(xdt)
       assert_data_table(ydt)
       assert_data_table(gdt)
-      # FIXME: niche
-      assert_list(xss_trafoed)
+      assert_data_table(niche, types = "character")
       assert_data_table(ydt[, self$cols_y, with = FALSE], any.missing = FALSE)
+      assert_data_table(gdt[, self$cols_g, with = FALSE], any.missing = FALSE)
+      assert_list(xss_trafoed)
       if (self$check_values) {
         self$search_space$assert_dt(xdt[, self$cols_x, with = FALSE])
       }
-      xygdtn = cbind(xdt, ydt, gdt, niche)
-      assert_subset(c(self$search_space$ids(), self$codomain$ids()), colnames(xygdtn))
-      xygdtn[, "x_domain" := list(xss_trafoed)]
-      xygdtn[, "timestamp" := Sys.time()]
+      xygndt = cbind(xdt, ydt, gdt, niche)
+      assert_subset(c(self$search_space$ids(), self$codomain_obj$ids(), self$codomain_ft$ids(), "niche"), colnames(xygndt))
+      xygndt[, "x_domain" := list(xss_trafoed)]
+      xygndt[, "timestamp" := Sys.time()]
       batch_nr = private$.data$batch_nr
       batch_nr = if (length(batch_nr)) max(batch_nr) + 1L else 1L
-      xygdtn[, "batch_nr" := batch_nr]
-      private$.data = rbindlist(list(private$.data, xygdtn), fill = TRUE, use.names = TRUE)
+      xygndt[, "batch_nr" := batch_nr]
+      private$.data = rbindlist(list(private$.data, xygndt), fill = TRUE, use.names = TRUE)
     },
 
-    # FIXME: method for returning the best solution for each niche at once
-
     #' @description
-    #' Returns the best scoring evaluation. For single-crit optimization,
+    #' Returns the best scoring evaluation for each niche. For single-crit optimization,
     #' the solution that minimizes / maximizes the objective function.
     #' For multi-crit optimization, the Pareto set / front.
     #'
     #' @param m (`integer()`)\cr
     #' Take only batches `m` into account. Default is all batches.
-    #' @param c (`factor`)\cr
-    #' Take only niches `c` into account. Default is all niches.
+    #' @param j (`character`)\cr
+    #' Take only niches `j` into account. Default is all niches.
     #'
     #' @return [data.table::data.table()].
-    best = function(m = NULL, c = NULL) {
+    best = function(m = NULL, j = NULL) {
       if (self$n_batch == 0L) {
         stop("No results stored in archive")
       }
@@ -102,21 +118,20 @@ ArchiveQDO = R6Class("ArchiveQDO",
       }
       batch_nr = NULL # CRAN check
 
-      c = if (is.null(c)) {
-        # FIXME:
+      j = if (is.null(j)) {
         self$niches
       } else {
-        # FIXME:
-        assert_string(c)
+        assert_string(j)
       }
 
-      tab = private$.data[batch_nr %in% m & niche %in% c, ]
+      tab = private$.data[batch_nr %in% m & niche %in% j, ]
 
-      max_to_min = mult_max_to_min(self$codomain)
-      if (self$codomain$length == 1L) {
-        setorderv(tab, self$codomain$ids(), order = max_to_min, na.last = TRUE)
-        res = tab[1, ]
+      max_to_min = mult_max_to_min(self$codomain_obj)
+      if (self$codomain_obj$length == 1L) {
+        setorderv(tab, cols = self$codomain_obj$ids(), order = max_to_min, na.last = TRUE)
+        res = unique(tab, by = "niche")
       } else {
+        # FIXME:
         ymat = t(as.matrix(tab[, self$cols_y, with = FALSE]))
         ymat = max_to_min * ymat
         res = tab[!is_dominated(ymat)]
@@ -184,9 +199,15 @@ ArchiveQDO = R6Class("ArchiveQDO",
     cols_x = function() self$search_space$ids(),
 
     #' @field cols_y (`character()`).
-    #' Column names of codomain parameters.
-    cols_y = function() self$codomain$ids()
+    #' Column names of objective function codomain parameters.
+    cols_y = function() self$codomain_obj$ids(),
+
+    #' @field cols_g (`character()`).
+    #' Column names of feature function codomain parameters.
+    cols_g = function() self$codomain_ft$ids()
     # idx_unevaled = function() private$.data$y
+
+
   ),
 
   private = list(
