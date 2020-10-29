@@ -50,7 +50,7 @@ OptimInstanceQDO = R6Class("OptimInstanceQDO",
         assert_param_set(search_space)
       }
       self$terminator = assert_terminator(terminator, self)
-      self$archive = ArchiveQDO$new(search_space = self$search_space, codomain_obj = objective$codomain, codomain_ft = feature$feature_function$codomain, niches = feature$niche_boundaries$niches)
+      self$archive = ArchiveQDO$new(search_space = self$search_space, codomain_obj = objective$codomain, codomain_ft = feature$feature_function$codomain, niches = feature$niches$niches)
 
       if (!all(self$search_space$is_number)) {
         private$.objective_function = objective_error
@@ -110,7 +110,7 @@ OptimInstanceQDO = R6Class("OptimInstanceQDO",
       lg$info("Evaluating %i configuration(s)", nrow(xdt))
       ydt = self$objective$eval_many(xss_trafoed)
       gdt = self$feature$feature_function$eval_many(xss_trafoed)
-      niche = self$feature$niche_boundaries$get_niche_dt(gdt)
+      niche = self$feature$niches$get_niche_dt(gdt)
       self$archive$add_evals(xdt, xss_trafoed, ydt, gdt, niche)
       lg$info("Result of batch %i:", self$archive$n_batch)
       lg$info(capture.output(print(cbind(xdt, ydt, gdt, niche),
@@ -118,6 +118,7 @@ OptimInstanceQDO = R6Class("OptimInstanceQDO",
       return(invisible(cbind(ydt, gdt, niche)))
     },
 
+    # FIXME: niche
     #' @description
     #' The [Optimizer] object writes the best found point
     #' and estimated performance value here. For internal use.
@@ -128,7 +129,7 @@ OptimInstanceQDO = R6Class("OptimInstanceQDO",
     #' extra information.
     #' @param y (`numeric(1)`)\cr
     #'   Optimal outcome.
-    #' @param g (`numeric()`)\cr
+    #' @param g (`any`)\cr
     #'   g values.
     assign_result = function(xdt, y, g) {
       stop("Abstract class")

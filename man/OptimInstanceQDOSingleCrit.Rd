@@ -88,7 +88,7 @@ However, \code{xdt} can contain additional columns.}
 
 \item{\code{y}}{(\code{numeric(1)})\cr}
 
-\item{\code{g}}{(\code{numeric()})\cr
+\item{\code{g}}{(\code{any})\cr
 Optimal outcome.}
 }
 \if{html}{\out{</div>}}

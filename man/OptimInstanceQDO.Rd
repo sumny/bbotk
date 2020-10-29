@@ -161,7 +161,7 @@ extra information.}
 \item{\code{y}}{(\code{numeric(1)})\cr
 Optimal outcome.}
 
-\item{\code{g}}{(\code{numeric()})\cr
+\item{\code{g}}{(\code{any})\cr
 g values.}
 }
 \if{html}{\out{</div>}}

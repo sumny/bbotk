@@ -2,7 +2,7 @@
 #'
 #' @description
 #' Feature class for QDO. Describes the feature part of QDO.
-#' Mainly consists of a feature function ([Objective]), niche boundaries ([NicheBoundaries]), and a surrogate ([mlr3mbo::Surrogate]).
+#' Mainly consists of a feature function ([Objective]), niches ([Niches]), and a surrogate ([mlr3mbo::Surrogate] | `NULL`).
 #'
 #' @export
 Feature = R6Class("Feature",
@@ -14,24 +14,28 @@ Feature = R6Class("Feature",
     #' @field feature_function ([Objective]).
     feature_function = NULL,
 
-    #' @field niche_boundaries [(NicheBoundaries)].
-    niche_boundaries = NULL,
+    #' @field niches [(Niches)].
+    niches = NULL,
 
     #' @field surrogate ([mlr3mbo::Surrogate]).
     surrogate = NULL,  # FIXME: don't like this design but it is this way in AquisitionFunction in mlr3mbo so we stay with it for now
+
+    #' @field model_feature_function (`logical(1)`).
+    model_feature_function = NULL,
 
     #' @description
     #' Creates a new instance of this [R6][R6::R6Class] class.
     #'
     #' @param id (`character(1)`).
     #' @param feature_function ([Objective]).
-    #' @param niche_boundaries ([NicheBoundaries]).
+    #' @param niches ([Niches]).
     #' @param surrogate ([mlr3mbo::Surrogate]).
-    initialize = function(id, feature_function, niche_boundaries, surrogate) {
+    initialize = function(id, feature_function, niches, surrogate) {
       self$id = assert_string(id)
       self$feature_function = assert_r6(feature_function, classes = "Objective")
-      self$niche_boundaries = assert_r6(niche_boundaries, "NicheBoundaries")
-      self$surrogate = assert_r6(surrogate, "Surrogate")
+      self$niches = assert_r6(niches, "Niches")
+      self$surrogate = assert_r6(surrogate, "Surrogate", null.ok = TRUE)
+      self$model_feature_function = if (is.null(surrogate)) FALSE else TRUE
     },
 
     #' @description
@@ -39,7 +43,7 @@ Feature = R6Class("Feature",
     #'
     #' @param xdt [data.table::data.table]
     #'
-    #' @return `data.table` \cr
+    #' @return `data.table`\cr
     #' The column has to have the same name as the id of the acq_fun, because we
     #' renamed the id of the codomain
     eval_dt = function(xdt) {
@@ -50,87 +54,29 @@ Feature = R6Class("Feature",
 
 
 
-#' @title NicheBoundary
+#' @title Niches
 #'
 #' @description
-#' Describes a niche related to a feature function in QDO based on some boundaries.
+#' Describes a set of niches related to a feature function in QDO.
 #'
 #' @export
-NicheBoundary = R6Class("NicheBoundary",
+Niches = R6Class("Niches",
   public = list(
 
     #' @field id (`character(1)`).
     id = NULL,
 
-    #' @description
-    #' Creates a new instance of this [R6][R6::R6Class] class.
-    #'
-    #' @param id (`character(1)`).
-    #' @param niche_boundary (`list()`).
-    initialize = function(id, niche_boundary) {
-      self$id = assert_string(id)
-      private$.niche_boundary = assert_niche_boundary(niche_boundary)
-      private$.feature_function_ids = assert_character(names(niche_boundary), any.missing = FALSE, min.len = 1L, unique = TRUE)
-    }
-  ),
-
-  private = list(
-    .feature_function_ids = NULL,
-    .niche_boundary = NULL
-  ),
-
-  active = list(
-    #' @field feature_function_ids (`character()`).
-    feature_function_ids = function(rhs) {
-      if (!missing(rhs) && !identical(rhs, private$.feature_function_ids)) {
-        stop("feature_function_ids is read-only.")
-      }
-      private$.feature_function_ids
-    },
-
-    #' @field niche_boundary (`list()`).
-    niche_boundary = function(rhs) {
-      if (!missing(rhs) && !identical(rhs, private$.niche_boundary)) {
-        stop("niche_boundary is read-only.")
-      }
-      private$.niche_boundary
-    }
-  )
-)
-
-
-
-#' @title NicheBoundaries
-#'
-#' @description
-#' Describes a set of niches related to a feature function in QDO based on some boundaries.
-#'
-#' @export
-NicheBoundaries = R6Class("NicheBoundaries",
-  # FIXME: needs a simple container for the resulting boundaries
-  # FIXME: does a "rest" niche make sense based on no matches?
-  public = list(
-
-    #' @field id (`character(1)`).
-    id = NULL,
-
-    #' @field niches (`character()`).
-    niches = NULL,  # FIXME: make private?
-
-    #' @field feature_function_ids (`character()`).
-    feature_function_ids = NULL,  # FIXME: make private?
+    #' @field niches (`list()`).
+    niches = NULL,
 
     #' @description
     #' Creates a new instance of this [R6][R6::R6Class] class.
     #'
     #' @param id (`character(1)`).
-    #' @param niche_boundaries (`list()`).
-    initialize = function(id, niche_boundaries) {
+    #' @param niches (`list()`).
+    initialize = function(id, niches) {
       self$id = assert_string(id)
-      private$.niche_boundaries = assert_niche_boundaries(niche_boundaries)
-      self$niches = map_chr(niche_boundaries, "id")
-      names(private$.niche_boundaries) = self$niches
-      self$feature_function_ids = niche_boundaries[[1L]]$feature_function_ids
+      self$niches = niches
     },
 
     #' @description
@@ -140,8 +86,9 @@ NicheBoundaries = R6Class("NicheBoundaries",
     #' A `list()` that contains a value of the feature function, e.g., `list(g1 = 1, g2 = 2)`.
     #'
     #' @return `character(1)` indicating the niche.
-    # FIXME: should niches actually be factors
-    get_niche = function(gval) {  # FIXME: this and all below should move to the Feature class?
+    # FIXME: should niches actually be factors?
+    # FIXME: this and all below should be moved to the Feature class?
+    get_niche = function(gval) {
       private$.get_niche(gval)
     },
 
@@ -163,31 +110,112 @@ NicheBoundaries = R6Class("NicheBoundaries",
     #' A [data.table::data.table] containing values of the feature function for multiple points as rows.
     #'
     #' @return [data.table::data.table] containing the niches.
-    get_niche_dt = function(gvaldt) {  # FIXME: regarding get_niche etc. split up similar as in [Objective]
+    get_niche_dt = function(gvaldt) {
       data.table(niche = map_chr(transpose_list(gvaldt), private$.get_niche))
     }
   ),
 
   private = list(
-    .niche_boundaries = NULL,
-
     .get_niche = function(gval) {
-      assert_list(gval, types = "numeric", any.missing = FALSE, len = length(self$feature_function_ids))
-      assert_names(names(gval), type = "strict", subset.of = self$feature_function_ids)
-      gval = gval[self$feature_function_ids]  # FIXME: reorder necessary?
-      # FIXME: the following is way too complex
-      is_in_niche = map_lgl(self$niche_boundaries, function(niche) {
-        all(pmap_lgl(list(niche$niche_boundary, gval), function(interval, point) interval[1L] <= point && point < interval[2L]))
-      })
-      niche = self$niches[is_in_niche]
-      if (!length(niche)) {
-        niche = NA_character_
-      }
-      niche
+      stop("Abstract.")
+    }
+  )
+)
+
+
+
+#' @title NichesROC
+#'
+#' @description
+#' Describes a set of niches related to a ROC feature function in QDO.
+#'
+#' @export
+NichesROC = R6Class("NichesROC", inherit = Niches,
+  public = list(
+
+    #' @description
+    #' Creates a new instance of this [R6][R6::R6Class] class.
+    #'
+    #' @param id (`character(1)`).
+    #' @param ellipsoids (`list()`).
+    initialize = function(id, ellipsoids) {
+      assert_list(ellipsoids, types = "list", any.missing = FALSE, min.len = 2L, names = "strict")
+      map(ellipsoids, assert_list, types = "Ellipsoid2D", any.missing = FALSE, min.len = 1L, names = "strict")
+      super$initialize(id = id, niches = map(ellipsoids, assert_list, types = "Ellipsoid2D", any.missing = FALSE, min.len = 1L, names = "strict"))
     }
   ),
 
+  private = list(
+    .get_niche = function(gval) {
+      gval = as.data.table(gval[[1L]])
+      niche = names(self$niches)[map_lgl(self$niches, function(niche) all(map_lgl(niche, function(ellipsoid) any(apply(gval, MARGIN = 1L, FUN = ellipsoid$is_inside)))))]
+      #if (length(niche) > 1L) niche = sample(niche, 1L)
+      if (!length(niche)) niche = NA_character_
+      niche
+    }
+  )
+)
+
+
+
+Ellipsoid2D = R6Class("Ellipsoid2D",
+  #FIXME: shape matrix, plot method car::elipse
+  public = list(
+    id = NULL,
+    center = NULL,
+    radii = NULL,
+    initialize = function(id, center, radii) {
+      self$id = assert_string(id, min.chars = 1L)
+      self$center = assert_numeric(center, finite = TRUE, any.missing = FALSE, len = 2L)
+      self$radii = assert_numeric(radii, lower = 1e-3, finite = TRUE, any.missing = FALSE, len = 2L)
+    },
+    is_inside = function(point) {
+      assert_numeric(point, finite = TRUE, any.missing = FALSE, len = 2L)
+      sum((point - self$center) ^ 2 / self$radii ^ 2) < 1
+    }
+  )
+)
+
+
+
+#' @title NicheBoundaries
+#'
+#' @description
+#' Describes a niche related to a feature function in QDO based on some boundaries.
+#'
+#' @export
+NicheBoundaries = R6Class("NicheBoundaries",
+  public = list(
+
+    #' @field id (`character(1)`).
+    id = NULL,
+
+    #' @description
+    #' Creates a new instance of this [R6][R6::R6Class] class.
+    #'
+    #' @param id (`character(1)`).
+    #' @param niche_boundaries (`list()`).
+    initialize = function(id, niche_boundaries) {
+      self$id = assert_string(id)
+      private$.niche_boundaries = assert_niche_boundaries(niche_boundaries)
+      private$.feature_function_ids = assert_character(names(niche_boundaries), any.missing = FALSE, min.len = 1L, unique = TRUE)
+    }
+  ),
+
+  private = list(
+    .feature_function_ids = NULL,
+    .niche_boundaries = NULL
+  ),
+
   active = list(
+    #' @field feature_function_ids (`character()`).
+    feature_function_ids = function(rhs) {
+      if (!missing(rhs) && !identical(rhs, private$.feature_function_ids)) {
+        stop("feature_function_ids is read-only.")
+      }
+      private$.feature_function_ids
+    },
+
     #' @field niche_boundaries (`list()`).
     niche_boundaries = function(rhs) {
       if (!missing(rhs) && !identical(rhs, private$.niche_boundaries)) {
@@ -200,8 +228,47 @@ NicheBoundaries = R6Class("NicheBoundaries",
 
 
 
+#' @title NichesBoundaries
+#'
+#' @description
+#' Describes a set of niches related to a feature function in QDO based on some boundaries.
+#'
+#' @export
+NichesBoundaries = R6Class("NichesBoundaries", inherit = Niches,
+  # FIXME: needs a simple container for the resulting boundaries?
+  public = list(
+
+    #' @description
+    #' Creates a new instance of this [R6][R6::R6Class] class.
+    #'
+    #' @param id (`character(1)`).
+    #' @param niches_boundaries (`list()`).
+    initialize = function(id, niches_boundaries) {
+      super$initialize(id = id, niches = assert_niches_boundaries(niches_boundaries))
+    }
+  ),
+
+  private = list(
+    .get_niche = function(gval) {
+      #assert_list(gval, types = "numeric", any.missing = FALSE, len = length(self$feature_function_ids))
+      #assert_names(names(gval), type = "strict", subset.of = self$feature_function_ids)
+      #gval = gval[self$feature_function_ids]  # FIXME: reorder necessary?
+      # FIXME: the following is way too complex
+      is_in_niche = map_lgl(self$niches, function(niche) {
+        all(pmap_lgl(list(niche$niche_boundaries, gval), function(interval, point) interval[1L] <= point && point < interval[2L]))
+      })
+      niche = names(self$niches)[is_in_niche]
+      #if (length(niche) > 1L) niche = sample(niche, 1L)
+      if (!length(niche)) niche = NA_character_
+      niche
+    }
+  )
+)
+
+
+
 # Helper function to check structure of a single niche
-check_niche_boundary = function(x) {
+check_niche_boundaries = function(x) {
   # FIXME: boundaries w.r.t a niche must be ok w.r.t. the domain of the feature functions
   # FIXME: boundaries must be sorted (lower, upper)
   structure_check = check_list(x, types = "numeric", any.missing = FALSE, min.len = 1L, names = "strict", null.ok = FALSE)
@@ -216,19 +283,19 @@ check_niche_boundary = function(x) {
 }
 
 # Helper function to assert structure of a single niche
-assert_niche_boundary = function(x, .var.name = vname(x), add = NULL) {
+assert_niche_boundaries = function(x, .var.name = vname(x), add = NULL) {
   if (missing(x)) {
     stop(sprintf("argument \"%s\" is missing, with no default", .var.name))
   }
-  res = check_niche_boundary(x)
+  res = check_niche_boundaries(x)
   makeAssertion(x, res, .var.name, add)
 }
 
 
 
 # Helper function to check structure of niches
-check_niche_boundaries = function(x) {
-  structure_check = check_list(x, types = "NicheBoundary", any.missing = FALSE, min.len = 2L, unique = TRUE, names = "unnamed", null.ok = FALSE)
+check_niches_boundaries = function(x) {
+  structure_check = check_list(x, types = "NicheBoundaries", any.missing = FALSE, min.len = 2L, unique = TRUE, names = "strict", null.ok = FALSE)
   if (!isTRUE(structure_check)) {
     return(structure_check)
   }
@@ -247,10 +314,10 @@ check_niche_boundaries = function(x) {
 }
 
 # Helper function to assert structure of niches
-assert_niche_boundaries = function(x, .var.name = vname(x), add = NULL) {
+assert_niches_boundaries = function(x, .var.name = vname(x), add = NULL) {
   if (missing(x)) {
     stop(sprintf("argument \"%s\" is missing, with no default", .var.name))
   }
-  res = check_niche_boundaries(x)
+  res = check_niches_boundaries(x)
   makeAssertion(x, res, .var.name, add)
 }

@@ -119,7 +119,7 @@ ArchiveQDO = R6Class("ArchiveQDO",
       batch_nr = NULL # CRAN check
 
       j = if (is.null(j)) {
-        self$niches
+        names(self$niches)
       } else {
         assert_string(j)
       }
@@ -178,6 +178,7 @@ ArchiveQDO = R6Class("ArchiveQDO",
     }
   ),
 
+  # FIXME: niches
   active = list(
 
     #' @field n_evals (`integer(1)`)\cr
@@ -206,8 +207,6 @@ ArchiveQDO = R6Class("ArchiveQDO",
     #' Column names of feature function codomain parameters.
     cols_g = function() self$codomain_ft$ids()
     # idx_unevaled = function() private$.data$y
-
-
   ),
 
   private = list(

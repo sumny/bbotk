@@ -5,7 +5,7 @@
 \title{Feature}
 \description{
 Feature class for QDO. Describes the feature part of QDO.
-Mainly consists of a feature function (\link{Objective}), niche boundaries (\link{NicheBoundaries}), and a surrogate (\link[mlr3mbo:Surrogate]{mlr3mbo::Surrogate}).
+Mainly consists of a feature function (\link{Objective}), niches (\link{Niches}), and a surrogate (\link[mlr3mbo:Surrogate]{mlr3mbo::Surrogate} | \code{NULL}).
 }
 \section{Public fields}{
 \if{html}{\out{<div class="r6-fields">}}
@@ -14,9 +14,11 @@ Mainly consists of a feature function (\link{Objective}), niche boundaries (\lin
 
 \item{\code{feature_function}}{(\link{Objective}).}
 
-\item{\code{niche_boundaries}}{\link{(NicheBoundaries)}.}
+\item{\code{niches}}{\link{(Niches)}.}
 
 \item{\code{surrogate}}{(\link[mlr3mbo:Surrogate]{mlr3mbo::Surrogate}).}
+
+\item{\code{model_feature_function}}{(\code{logical(1)}).}
 }
 \if{html}{\out{</div>}}
 }
@@ -34,7 +36,7 @@ Mainly consists of a feature function (\link{Objective}), niche boundaries (\lin
 \subsection{Method \code{new()}}{
 Creates a new instance of this \link[R6:R6Class]{R6} class.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{Feature$new(id, feature_function, niche_boundaries, surrogate)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{Feature$new(id, feature_function, niches, surrogate)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
@@ -44,7 +46,7 @@ Creates a new instance of this \link[R6:R6Class]{R6} class.
 
 \item{\code{feature_function}}{(\link{Objective}).}
 
-\item{\code{niche_boundaries}}{(\link{NicheBoundaries}).}
+\item{\code{niches}}{(\link{Niches}).}
 
 \item{\code{surrogate}}{(\link[mlr3mbo:Surrogate]{mlr3mbo::Surrogate}).}
 }
@@ -68,7 +70,7 @@ Evaluates all input values in \code{xdt}.
 \if{html}{\out{</div>}}
 }
 \subsection{Returns}{
-\code{data.table} \cr
+\code{data.table}\cr
 The column has to have the same name as the id of the acq_fun, because we
 renamed the id of the codomain
 }

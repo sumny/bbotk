@@ -31,12 +31,13 @@ OptimInstanceQDOSingleCrit = R6Class("OptimInstanceQDOSingleCrit",
       super$initialize(objective, feature, search_space, terminator)
     },
 
+    # FIXME: niche
     #' @description
     #' The [Optimizer] object writes the best found point
     #' and estimated performance value here. For internal use.
     #'
     #' @param y (`numeric(1)`)\cr
-    #' @param g (`numeric()`)\cr
+    #' @param g (`any`)\cr
     #' Optimal outcome.
     assign_result = function(xdt, y, g) {
       # FIXME: We could have one way that just lets us put a 1xn DT as result directly.
