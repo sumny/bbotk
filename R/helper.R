@@ -114,6 +114,7 @@ assign_result_default = function(inst) {
 #' @keywords internal
 #' @export
 mult_max_to_min = function(codomain) {
+  # FIXME: we now have different tags
   ifelse(map_lgl(codomain$tags, has_element, "minimize"), 1, -1)
 }
 

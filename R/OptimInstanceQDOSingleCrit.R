@@ -1,4 +1,4 @@
-#' @title Optimization Instance for QDO with budget and archive
+#' @title Optimization Instance with budget and archive QDO
 #'
 #' @description
 #' Wraps a single-criteria [Objective] function with extra services for
@@ -22,34 +22,33 @@ OptimInstanceQDOSingleCrit = R6Class("OptimInstanceQDOSingleCrit",
     #' Creates a new instance of this [R6][R6::R6Class] class.
     #'
     #' @param objective ([Objective]).
-    #' @param feature ([Feature]).
     #' @param terminator ([Terminator]).
-    initialize = function(objective, feature, search_space = NULL, terminator) {
-      if (objective$codomain$length > 1) {
-        stop("Codomain > 1")
-      }
-      super$initialize(objective, feature, search_space, terminator)
+    #' @param check_values (`logical(1)`)\cr
+    #' Should x-values that are added to the archive be checked for validity?
+    #' Search space that is logged into archive.
+    initialize = function(objective, search_space = NULL, terminator,
+      check_values = TRUE) {
+      # FIXME:
+      #if (objective$codomain$length > 1) {
+      #  stop("Codomain > 1")
+      #}
+      super$initialize(objective, search_space, terminator, check_values)
     },
 
-    # FIXME: niche
     #' @description
     #' The [Optimizer] object writes the best found point
     #' and estimated performance value here. For internal use.
     #'
     #' @param y (`numeric(1)`)\cr
-    #' @param g (`any`)\cr
     #' Optimal outcome.
-    assign_result = function(xdt, y, g) {
+    assign_result = function(xdt, y) {
       # FIXME: We could have one way that just lets us put a 1xn DT as result directly.
       assert_data_table(xdt, nrows = 1L)
       assert_names(names(xdt), must.include = self$search_space$ids())
       assert_number(y)
-      assert_numeric(g)
       assert_names(names(y), permutation.of = self$objective$codomain$ids())
-      assert_names(names(g), permutation.of = self$feature$feature_function$codomain$ids())
       x_domain = transform_xdt_to_xss(xdt, self$search_space)[[1L]]
-      private$.result = cbind(xdt, x_domain = list(x_domain), t(y), t(g)) # t(y) so the name of y stays
+      private$.result = cbind(xdt, x_domain = list(x_domain), t(y)) # t(y) so the name of y stays
     }
   )
 )
-

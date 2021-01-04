@@ -118,8 +118,8 @@ assert_codomain = function(codomain) {
   for (y in codomain$params) {
 
     # (1) all numeric
-    if (!y$is_number) {
-      stopf("%s in codomain is not numeric", y$id)
+    if (!(y$is_number || y$is_categ)) {
+      stopf("%s in codomain is not numeric or categorical", y$id)
     }
 
     # (2) every parameter's tags contain at most one of 'minimize' or 'maximize'
@@ -127,9 +127,9 @@ assert_codomain = function(codomain) {
       stopf("%s in codomain contains a 'minimize' and 'maximize' tag", y$id)
     }
 
-    # (3) every parameter contains a 'minimize' or 'maximize' tag
-    if (!any(y$tags %in% c("minimize", "maximize"))) {
-      stopf("%s in codomain contains no 'minimize' or 'maximize' tag", y$id)
+    # (3) every parameter contains a 'minimize', 'maximize', 'feature' or 'niche' tag
+    if (!any(y$tags %in% c("minimize", "maximize", "feature", "niche"))) {
+      stopf("%s in codomain contains no 'minimize', 'maximize', 'feature' or 'niche' tag", y$id)
     }
   }
   return(codomain)
