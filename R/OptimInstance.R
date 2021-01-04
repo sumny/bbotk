@@ -31,12 +31,20 @@ OptimInstance = R6Class("OptimInstance",
     #' @field archive ([Archive]).
     archive = NULL,
 
+    #' @field progressor (`progressor()`)\cr
+    #' Stores `progressor` function.
+    progressor = NULL,
+
     #' @description
     #' Creates a new instance of this [R6][R6::R6Class] class.
     #'
     #' @param objective ([Objective]).
     #' @param terminator ([Terminator]).
-    initialize = function(objective, search_space = NULL, terminator) {
+    #' @param check_values (`logical(1)`)\cr
+    #' Should x-values that are added to the archive be checked for validity?
+    #' Search space that is logged into archive.
+    initialize = function(objective, search_space = NULL, terminator,
+      check_values = TRUE) {
       self$objective = assert_r6(objective, "Objective")
       self$search_space = if (is.null(search_space)) {
         self$objective$domain
@@ -44,8 +52,9 @@ OptimInstance = R6Class("OptimInstance",
         assert_param_set(search_space)
       }
       self$terminator = assert_terminator(terminator, self)
+      assert_flag(check_values)
       self$archive = Archive$new(search_space = self$search_space,
-        codomain = objective$codomain)
+        codomain = objective$codomain, check_values = check_values)
 
       if (!all(self$search_space$is_number)) {
         private$.objective_function = objective_error
@@ -53,6 +62,8 @@ OptimInstance = R6Class("OptimInstance",
         private$.objective_function = objective_function
         private$.objective_multiplicator = mult_max_to_min(self$objective$codomain)
       }
+
+      self$progressor = Progressor$new()
     },
 
     #' @description
@@ -95,10 +106,13 @@ OptimInstance = R6Class("OptimInstance",
     #' the *search space* of the [OptimInstance] object. Can contain additional
     #' columns for extra information.
     eval_batch = function(xdt) {
+      self$progressor$update(self$terminator, self$archive)
+
       if (self$is_terminated || self$terminator$is_terminated(self$archive)) {
         self$is_terminated = TRUE
         stop(terminated_error(self))
       }
+
       assert_data_table(xdt)
       xss_trafoed = transform_xdt_to_xss(xdt, self$search_space)
       lg$info("Evaluating %i configuration(s)", nrow(xdt))

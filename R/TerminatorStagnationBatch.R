@@ -21,6 +21,7 @@
 #' }
 #'
 #' @family Terminator
+#' @template param_archive
 #' @export
 #' @examples
 #' TerminatorStagnationBatch$new()
@@ -43,9 +44,6 @@ TerminatorStagnationBatch = R6Class("TerminatorStagnationBatch",
     #' @description
     #' Is `TRUE` iff the termination criterion is positive, and `FALSE`
     #' otherwise.
-    #'
-    #' @param archive ([Archive]).
-    #'
     #' @return `logical(1)`.
     is_terminated = function(archive) {
 
@@ -60,9 +58,9 @@ TerminatorStagnationBatch = R6Class("TerminatorStagnationBatch",
         return(FALSE)
       }
       batch_nr = NULL # CRAN check
-      perf_before = archive$data()[batch_nr %in% previous_batch,
+      perf_before = archive$data[batch_nr %in% previous_batch,
         c(ycol, "batch_nr"), with = FALSE]
-      perf_present = archive$data()[batch_nr == present_batch,
+      perf_present = archive$data[batch_nr == present_batch,
         c(ycol, "batch_nr"), with = FALSE]
 
       if (minimize) {

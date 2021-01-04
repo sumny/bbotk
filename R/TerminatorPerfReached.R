@@ -18,6 +18,7 @@
 #' }
 #'
 #' @family Terminator
+#' @template param_archive
 #' @export
 #' @examples
 #' TerminatorPerfReached$new()
@@ -39,8 +40,6 @@ TerminatorPerfReached = R6Class("TerminatorPerfReached",
     #' @description
     #' Is `TRUE` iff the termination criterion is positive, and `FALSE`
     #' otherwise.
-    #'
-    #' @param archive ([Archive]).
     #' @return `logical(1)`.
     is_terminated = function(archive) {
       level = self$param_set$values$level
@@ -51,7 +50,7 @@ TerminatorPerfReached = R6Class("TerminatorPerfReached",
         return(FALSE)
       }
 
-      ydata = get_private(archive)$.data[[ycol]]
+      ydata = archive$data[[ycol]]
       if (minimize) {
         any(ydata <= level)
       } else {

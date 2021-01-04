@@ -8,6 +8,7 @@ Package website: [release](https://bbotk.mlr-org.com/)
 [![tic](https://github.com/mlr-org/bbotk/workflows/tic/badge.svg?branch=master)](https://github.com/mlr-org/bbotk/actions)
 [![CRAN Status Badge](https://www.r-pkg.org/badges/version-ago/bbotk)](https://cran.r-project.org/package=bbotk)
 [![codecov.io](https://codecov.io/github/mlr-org/bbotk/coverage.svg?branch=master)](https://codecov.io/gh/mlr-org/bbotk?branch=master)
+[![CodeFactor](https://www.codefactor.io/repository/github/mlr-org/bbotk/badge)](https://www.codefactor.io/repository/github/mlr-org/bbotk)
 <!-- badges: end -->
 
 This package provides a common framework for optimization including
@@ -25,25 +26,25 @@ Various optimization methods are already implemented e.g. grid search, random se
 
 CRAN version
 
-```{r}
+```r
 install.packages("bbotk")
 ```
 
 Development version
 
-```{r}
+```r
 remotes::install_github("mlr-org/bbotk")
 ```
 
 ## Example
 
-```{r}
+```r
 library(bbotk)
 library(paradox)
 
 # Define objective function
 fun = function(xs) {
-  - (xs[[1]] - 2)^2 - (xs[[2]] + 3)^2 + 10
+  c(y = - (xs[[1]] - 2)^2 - (xs[[2]] + 3)^2 + 10)
 }
 
 # Set domain
