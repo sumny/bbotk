@@ -3,7 +3,6 @@
 S3method(as.data.table,Archive)
 export(Archive)
 export(ArchiveQDO)
-export(Feature)
 export(NicheBoundaries)
 export(Niches)
 export(NichesBoundaries)

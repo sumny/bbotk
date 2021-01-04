@@ -2,7 +2,7 @@
 % Please edit documentation in R/OptimInstanceQDOSingleCrit.R
 \name{OptimInstanceQDOSingleCrit}
 \alias{OptimInstanceQDOSingleCrit}
-\title{Optimization Instance for QDO with budget and archive}
+\title{Optimization Instance with budget and archive QDO}
 \description{
 Wraps a single-criteria \link{Objective} function with extra services for
 convenient evaluation. Inherits from \link{OptimInstanceQDO}.
@@ -15,8 +15,8 @@ exception is raised, and no further evaluations can be performed from this
 point on.
 }
 }
-\section{Super class}{
-\code{\link[bbotk:OptimInstanceQDO]{bbotk::OptimInstanceQDO}} -> \code{OptimInstanceQDOSingleCrit}
+\section{Super classes}{
+\code{\link[bbotk:OptimInstance]{bbotk::OptimInstance}} -> \code{\link[bbotk:OptimInstanceQDO]{bbotk::OptimInstanceQDO}} -> \code{OptimInstanceQDOSingleCrit}
 }
 \section{Methods}{
 \subsection{Public methods}{
@@ -29,10 +29,10 @@ point on.
 \if{html}{
 \out{<details open ><summary>Inherited methods</summary>}
 \itemize{
-\item \out{<span class="pkg-link" data-pkg="bbotk" data-topic="OptimInstanceQDO" data-id="eval_batch">}\href{../../bbotk/html/OptimInstanceQDO.html#method-eval_batch}{\code{bbotk::OptimInstanceQDO$eval_batch()}}\out{</span>}
-\item \out{<span class="pkg-link" data-pkg="bbotk" data-topic="OptimInstanceQDO" data-id="format">}\href{../../bbotk/html/OptimInstanceQDO.html#method-format}{\code{bbotk::OptimInstanceQDO$format()}}\out{</span>}
-\item \out{<span class="pkg-link" data-pkg="bbotk" data-topic="OptimInstanceQDO" data-id="objective_function">}\href{../../bbotk/html/OptimInstanceQDO.html#method-objective_function}{\code{bbotk::OptimInstanceQDO$objective_function()}}\out{</span>}
-\item \out{<span class="pkg-link" data-pkg="bbotk" data-topic="OptimInstanceQDO" data-id="print">}\href{../../bbotk/html/OptimInstanceQDO.html#method-print}{\code{bbotk::OptimInstanceQDO$print()}}\out{</span>}
+\item \out{<span class="pkg-link" data-pkg="bbotk" data-topic="OptimInstance" data-id="eval_batch">}\href{../../bbotk/html/OptimInstance.html#method-eval_batch}{\code{bbotk::OptimInstance$eval_batch()}}\out{</span>}
+\item \out{<span class="pkg-link" data-pkg="bbotk" data-topic="OptimInstance" data-id="format">}\href{../../bbotk/html/OptimInstance.html#method-format}{\code{bbotk::OptimInstance$format()}}\out{</span>}
+\item \out{<span class="pkg-link" data-pkg="bbotk" data-topic="OptimInstance" data-id="objective_function">}\href{../../bbotk/html/OptimInstance.html#method-objective_function}{\code{bbotk::OptimInstance$objective_function()}}\out{</span>}
+\item \out{<span class="pkg-link" data-pkg="bbotk" data-topic="OptimInstance" data-id="print">}\href{../../bbotk/html/OptimInstance.html#method-print}{\code{bbotk::OptimInstance$print()}}\out{</span>}
 }
 \out{</details>}
 }
@@ -44,9 +44,9 @@ Creates a new instance of this \link[R6:R6Class]{R6} class.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{OptimInstanceQDOSingleCrit$new(
   objective,
-  feature,
   search_space = NULL,
-  terminator
+  terminator,
+  check_values = TRUE
 )}\if{html}{\out{</div>}}
 }
 
@@ -55,14 +55,16 @@ Creates a new instance of this \link[R6:R6Class]{R6} class.
 \describe{
 \item{\code{objective}}{(\link{Objective}).}
 
-\item{\code{feature}}{(\link{Feature}).}
-
 \item{\code{search_space}}{(\link[paradox:ParamSet]{paradox::ParamSet})\cr
 Specifies the search space for the \link{Optimizer}.
 The \link[paradox:ParamSet]{paradox::ParamSet} describes either a subset of the \code{domain} of the \link{Objective} or it describes a set of parameters together with a \code{trafo} function that transforms values from the search space to values of the domain.
 Depending on the context, this value defaults to the domain of the objective.}
 
 \item{\code{terminator}}{(\link{Terminator}).}
+
+\item{\code{check_values}}{(\code{logical(1)})\cr
+Should x-values that are added to the archive be checked for validity?
+Search space that is logged into archive.}
 }
 \if{html}{\out{</div>}}
 }
@@ -74,7 +76,7 @@ Depending on the context, this value defaults to the domain of the objective.}
 The \link{Optimizer} object writes the best found point
 and estimated performance value here. For internal use.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{OptimInstanceQDOSingleCrit$assign_result(xdt, y, g)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{OptimInstanceQDOSingleCrit$assign_result(xdt, y)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
@@ -86,9 +88,7 @@ One point per row, e.g. \code{data.table(x1 = c(1, 3), x2 = c(2, 4))}.
 Column names have to match ids of the \code{search_space}.
 However, \code{xdt} can contain additional columns.}
 
-\item{\code{y}}{(\code{numeric(1)})\cr}
-
-\item{\code{g}}{(\code{any})\cr
+\item{\code{y}}{(\code{numeric(1)})\cr
 Optimal outcome.}
 }
 \if{html}{\out{</div>}}

@@ -65,7 +65,7 @@ RoxygenNote: 7.1.1
 Collate:
     'Archive.R'
     'ArchiveQDO.R'
-    'Feature.R'
+    'Niches.R'
     'Objective.R'
     'ObjectiveRFun.R'
     'ObjectiveRFunDt.R'

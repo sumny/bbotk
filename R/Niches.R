@@ -1,59 +1,3 @@
-#' @title Feature
-#'
-#' @description
-#' Feature class for QDO. Describes the feature part of QDO.
-#' Mainly consists of a feature function ([Objective]), niches ([Niches]), and a surrogate ([mlr3mbo::Surrogate] | `NULL`).
-#'
-#' @export
-Feature = R6Class("Feature",
-  public = list(
-
-    #' @field id (`character(1)`).
-    id = NULL,
-
-    #' @field feature_function ([Objective]).
-    feature_function = NULL,
-
-    #' @field niches [(Niches)].
-    niches = NULL,
-
-    #' @field surrogate ([mlr3mbo::Surrogate]).
-    surrogate = NULL,  # FIXME: don't like this design but it is this way in AquisitionFunction in mlr3mbo so we stay with it for now
-
-    #' @field model_feature_function (`logical(1)`).
-    model_feature_function = NULL,
-
-    #' @description
-    #' Creates a new instance of this [R6][R6::R6Class] class.
-    #'
-    #' @param id (`character(1)`).
-    #' @param feature_function ([Objective]).
-    #' @param niches ([Niches]).
-    #' @param surrogate ([mlr3mbo::Surrogate]).
-    initialize = function(id, feature_function, niches, surrogate) {
-      self$id = assert_string(id)
-      self$feature_function = assert_r6(feature_function, classes = "Objective")
-      self$niches = assert_r6(niches, "Niches")
-      self$surrogate = assert_r6(surrogate, "Surrogate", null.ok = TRUE)
-      self$model_feature_function = if (is.null(surrogate)) FALSE else TRUE
-    },
-
-    #' @description
-    #' Evaluates all input values in `xdt`.
-    #'
-    #' @param xdt [data.table::data.table]
-    #'
-    #' @return `data.table`\cr
-    #' The column has to have the same name as the id of the acq_fun, because we
-    #' renamed the id of the codomain
-    eval_dt = function(xdt) {
-      self$feature_function$eval_dt(xdt)
-    }
-  )
-)
-
-
-
 #' @title Niches
 #'
 #' @description
@@ -321,3 +265,4 @@ assert_niches_boundaries = function(x, .var.name = vname(x), add = NULL) {
   res = check_niches_boundaries(x)
   makeAssertion(x, res, .var.name, add)
 }
+
