@@ -239,7 +239,7 @@ assert_niche_boundaries = function(x, .var.name = vname(x), add = NULL) {
 
 # Helper function to check structure of niches
 check_niches_boundaries = function(x) {
-  structure_check = check_list(x, types = "NicheBoundaries", any.missing = FALSE, min.len = 2L, unique = TRUE, names = "strict", null.ok = FALSE)
+  structure_check = check_list(x, types = "NicheBoundaries", any.missing = FALSE, min.len = 1L, unique = TRUE, names = "strict", null.ok = FALSE)
   if (!isTRUE(structure_check)) {
     return(structure_check)
   }
