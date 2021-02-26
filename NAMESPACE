@@ -2,6 +2,7 @@
 
 S3method(as.data.table,Archive)
 export(Archive)
+export(ArchiveBest)
 export(ArchiveQDO)
 export(NicheBoundaries)
 export(Niches)

@@ -7,6 +7,16 @@
 Container around a \link[data.table:data.table]{data.table::data.table} which stores all performed
 function calls of the Objective.
 }
+\section{S3 Methods}{
+
+\itemize{
+\item \code{as.data.table(archive)}\cr
+\link{Archive} -> \code{\link[data.table:data.table]{data.table::data.table()}}\cr
+Returns a tabular view of all performed function calls of the
+Objective. The \code{x_domain} column is unnested to separate columns.
+}
+}
+
 \section{Public fields}{
 \if{html}{\out{<div class="r6-fields">}}
 \describe{
@@ -16,12 +26,19 @@ Search space of objective.}
 \item{\code{codomain}}{(\link[paradox:ParamSet]{paradox::ParamSet})\cr
 Codomain of objective function.}
 
-\item{\code{start_time}}{(\link{POSIXct}).}
+\item{\code{start_time}}{(\link{POSIXct})\cr
+Time stamp of when the optimization started. The time is set by the
+\link{Optimizer}.}
 
-\item{\code{check_values}}{(\code{logical(1)})}
+\item{\code{check_values}}{(\code{logical(1)})\cr
+Determines if points and results are checked for validity.}
 
 \item{\code{data}}{(\link[data.table:data.table]{data.table::data.table})\cr
 Contains all performed \link{Objective} function calls.}
+
+\item{\code{store_x_domain}}{(\code{logical(1)})\cr
+Determines if x values, should be stored in \verb{$data$x_domain} as list
+items. The trafo will be applied if defined in \code{search_space}.}
 }
 \if{html}{\out{</div>}}
 }
@@ -34,10 +51,10 @@ Number of evaluations stored in the archive.}
 \item{\code{n_batch}}{(\code{integer(1)})\cr
 Number of batches stored in the archive.}
 
-\item{\code{cols_x}}{(\code{character()}).
+\item{\code{cols_x}}{(\code{character()})\cr
 Column names of search space parameters.}
 
-\item{\code{cols_y}}{(\code{character()}).
+\item{\code{cols_y}}{(\code{character()})\cr
 Column names of codomain parameters.}
 }
 \if{html}{\out{</div>}}
@@ -60,16 +77,18 @@ Column names of codomain parameters.}
 \subsection{Method \code{new()}}{
 Creates a new instance of this \link[R6:R6Class]{R6} class.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{Archive$new(search_space, codomain, check_values = TRUE)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{Archive$new(search_space, codomain, check_values = TRUE, store_x_domain = TRUE)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
 \item{\code{search_space}}{(\link[paradox:ParamSet]{paradox::ParamSet})\cr
-Specifies the search space for the \link{Optimizer}.
-The \link[paradox:ParamSet]{paradox::ParamSet} describes either a subset of the \code{domain} of the \link{Objective} or it describes a set of parameters together with a \code{trafo} function that transforms values from the search space to values of the domain.
-Depending on the context, this value defaults to the domain of the objective.}
+Specifies the search space for the \link{Optimizer}. The \link[paradox:ParamSet]{paradox::ParamSet}
+describes either a subset of the \code{domain} of the \link{Objective} or it describes
+a set of parameters together with a \code{trafo} function that transforms values
+from the search space to values of the domain. Depending on the context, this
+value defaults to the domain of the objective.}
 
 \item{\code{codomain}}{(\link[paradox:ParamSet]{paradox::ParamSet})\cr
 Specifies codomain of function.
@@ -79,6 +98,10 @@ be minimized or maximized.  The default is to minimize each component.}
 \item{\code{check_values}}{(\code{logical(1)})\cr
 Should x-values that are added to the archive be checked for validity?
 Search space that is logged into archive.}
+
+\item{\code{store_x_domain}}{(\code{logical(1)})\cr
+Determines if x values, should be stored in \verb{$data$x_domain} as list
+items. The trafo will be applied if defined in \code{search_space}.}
 }
 \if{html}{\out{</div>}}
 }
@@ -89,7 +112,7 @@ Search space that is logged into archive.}
 \subsection{Method \code{add_evals()}}{
 Adds function evaluations to the archive table.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{Archive$add_evals(xdt, xss_trafoed, ydt)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{Archive$add_evals(xdt, xss_trafoed = NULL, ydt)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
@@ -102,7 +125,8 @@ Column names have to match ids of the \code{search_space}.
 However, \code{xdt} can contain additional columns.}
 
 \item{\code{xss_trafoed}}{(\code{list()})\cr
-Transformed point(s) in the \emph{domain space}.}
+Transformed point(s) in the \emph{domain space}.
+Not stored and needed if \code{store_x_domain = FALSE}.}
 
 \item{\code{ydt}}{(\code{\link[data.table:data.table]{data.table::data.table()}})\cr
 Optimal outcome.}

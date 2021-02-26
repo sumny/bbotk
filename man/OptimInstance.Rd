@@ -24,12 +24,12 @@ user can access the results with active bindings (see below).
 
 \item{\code{terminator}}{(\link{Terminator}).}
 
-\item{\code{is_terminated}}{(\code{logical(1)}).}
-
 \item{\code{archive}}{(\link{Archive}).}
 
 \item{\code{progressor}}{(\code{progressor()})\cr
 Stores \code{progressor} function.}
+
+\item{\code{objective_multiplicator}}{(\code{integer()}).}
 }
 \if{html}{\out{</div>}}
 }
@@ -47,6 +47,8 @@ x part of the result in the \emph{search space}.}
 
 \item{\code{result_y}}{(\code{numeric()})\cr
 Optimal outcome.}
+
+\item{\code{is_terminated}}{(\code{logical(1)}).}
 }
 \if{html}{\out{</div>}}
 }
@@ -59,6 +61,7 @@ Optimal outcome.}
 \item \href{#method-eval_batch}{\code{OptimInstance$eval_batch()}}
 \item \href{#method-assign_result}{\code{OptimInstance$assign_result()}}
 \item \href{#method-objective_function}{\code{OptimInstance$objective_function()}}
+\item \href{#method-clear}{\code{OptimInstance$clear()}}
 \item \href{#method-clone}{\code{OptimInstance$clone()}}
 }
 }
@@ -72,6 +75,7 @@ Creates a new instance of this \link[R6:R6Class]{R6} class.
   objective,
   search_space = NULL,
   terminator,
+  keep_evals = "all",
   check_values = TRUE
 )}\if{html}{\out{</div>}}
 }
@@ -82,11 +86,16 @@ Creates a new instance of this \link[R6:R6Class]{R6} class.
 \item{\code{objective}}{(\link{Objective}).}
 
 \item{\code{search_space}}{(\link[paradox:ParamSet]{paradox::ParamSet})\cr
-Specifies the search space for the \link{Optimizer}.
-The \link[paradox:ParamSet]{paradox::ParamSet} describes either a subset of the \code{domain} of the \link{Objective} or it describes a set of parameters together with a \code{trafo} function that transforms values from the search space to values of the domain.
-Depending on the context, this value defaults to the domain of the objective.}
+Specifies the search space for the \link{Optimizer}. The \link[paradox:ParamSet]{paradox::ParamSet}
+describes either a subset of the \code{domain} of the \link{Objective} or it describes
+a set of parameters together with a \code{trafo} function that transforms values
+from the search space to values of the domain. Depending on the context, this
+value defaults to the domain of the objective.}
 
 \item{\code{terminator}}{(\link{Terminator}).}
+
+\item{\code{keep_evals}}{(\code{character(1)})\cr
+Keep \code{all} or only \code{best} evaluations in archive?}
 
 \item{\code{check_values}}{(\code{logical(1)})\cr
 Should x-values that are added to the archive be checked for validity?
@@ -197,6 +206,16 @@ Untransformed points.}
 \subsection{Returns}{
 Objective value as \code{numeric(1)}, negated for maximization problems.
 }
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-clear"></a>}}
+\if{latex}{\out{\hypertarget{method-clear}{}}}
+\subsection{Method \code{clear()}}{
+Reset terminator and lear all evaluation results from archive and results.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{OptimInstance$clear()}\if{html}{\out{</div>}}
+}
+
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-clone"></a>}}

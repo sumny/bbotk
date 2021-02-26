@@ -1,9 +1,20 @@
-# bbotk 0.2.2.9000
+# bbotk 0.3.0.9000
+
+* `OptimInstance$clear()` methods resets the instance.
+
+# bbotk 0.3.0
 
 * Improved `TerminatorPerfRearched` documentation.
 * Added `check_values` flag in `OptimInstance`, `OptimInstanceSingleCrit`, 
   `OptimInstanceMultiCrit`, `ObjectiveRFun` and `ObjectiveRFunDt`.
+* `Archive$data` is a public field now.
 * Renamed `m` parameter to `batch` in `Archive$best()`.
+* `ArchiveBest` stores no data but records the best scoring evaluation.
+* Reduced runtime if `ObjectiveRFunDt` and a domain without trafo is used.
+* `OptimizerDesignPoints` supports `ParamUty`.
+* Start values for `OptimizerCmaes` abd `OptimizerNloptr` are created randomly
+  or from center of search space.
+* `Optimizer$optimize()` supports progress bars via the package `progressr`.
 
 # bbotk 0.2.2
 

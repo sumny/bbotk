@@ -1,6 +1,3 @@
-context("OptimInstanceMultiCrit")
-
-
 test_that("OptimInstanceMultiCrit", {
   inst = MAKE_INST_2D_2D(20L)
   expect_output(print(inst), "OptimInstanceMultiCrit")
@@ -10,7 +7,7 @@ test_that("OptimInstanceMultiCrit", {
   expect_identical(inst$archive$n_batch, 0L)
 
   xdt = data.table(x1 = c(-1,-1,-1), x2 = c(1, 0, -1))
-  inst$eval_batch(xdt)
+  expect_named(inst$eval_batch(xdt), c("y1", "y2"))
   expect_data_table(inst$archive$data, nrows = 3L)
   expect_equal(inst$archive$data$y1, c(1, 1, 1))
   expect_equal(inst$archive$data$y2, c(-1, 0, -1))

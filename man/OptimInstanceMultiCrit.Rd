@@ -40,6 +40,7 @@ Optimal outcome.}
 \if{html}{
 \out{<details open ><summary>Inherited methods</summary>}
 \itemize{
+\item \out{<span class="pkg-link" data-pkg="bbotk" data-topic="OptimInstance" data-id="clear">}\href{../../bbotk/html/OptimInstance.html#method-clear}{\code{bbotk::OptimInstance$clear()}}\out{</span>}
 \item \out{<span class="pkg-link" data-pkg="bbotk" data-topic="OptimInstance" data-id="eval_batch">}\href{../../bbotk/html/OptimInstance.html#method-eval_batch}{\code{bbotk::OptimInstance$eval_batch()}}\out{</span>}
 \item \out{<span class="pkg-link" data-pkg="bbotk" data-topic="OptimInstance" data-id="format">}\href{../../bbotk/html/OptimInstance.html#method-format}{\code{bbotk::OptimInstance$format()}}\out{</span>}
 \item \out{<span class="pkg-link" data-pkg="bbotk" data-topic="OptimInstance" data-id="objective_function">}\href{../../bbotk/html/OptimInstance.html#method-objective_function}{\code{bbotk::OptimInstance$objective_function()}}\out{</span>}
@@ -57,6 +58,7 @@ Creates a new instance of this \link[R6:R6Class]{R6} class.
   objective,
   search_space = NULL,
   terminator,
+  keep_evals = "all",
   check_values = TRUE
 )}\if{html}{\out{</div>}}
 }
@@ -67,12 +69,17 @@ Creates a new instance of this \link[R6:R6Class]{R6} class.
 \item{\code{objective}}{(\link{Objective}).}
 
 \item{\code{search_space}}{(\link[paradox:ParamSet]{paradox::ParamSet})\cr
-Specifies the search space for the \link{Optimizer}.
-The \link[paradox:ParamSet]{paradox::ParamSet} describes either a subset of the \code{domain} of the \link{Objective} or it describes a set of parameters together with a \code{trafo} function that transforms values from the search space to values of the domain.
-Depending on the context, this value defaults to the domain of the objective.}
+Specifies the search space for the \link{Optimizer}. The \link[paradox:ParamSet]{paradox::ParamSet}
+describes either a subset of the \code{domain} of the \link{Objective} or it describes
+a set of parameters together with a \code{trafo} function that transforms values
+from the search space to values of the domain. Depending on the context, this
+value defaults to the domain of the objective.}
 
 \item{\code{terminator}}{(\link{Terminator})\cr
 Multi-criteria terminator.}
+
+\item{\code{keep_evals}}{(\code{character(1)})\cr
+Keep \code{all} or only \code{best} evaluations in archive?}
 
 \item{\code{check_values}}{(\code{logical(1)})\cr
 Should x-values that are added to the archive be checked for validity?

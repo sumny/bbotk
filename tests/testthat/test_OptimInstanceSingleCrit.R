@@ -1,5 +1,3 @@
-context("OptimInstanceSingleCrit")
-
 test_that("OptimInstanceSingleCrit", {
   inst = MAKE_INST_2D(20L)
   expect_r6(inst$archive, "Archive")
@@ -16,7 +14,7 @@ test_that("OptimInstanceSingleCrit", {
   expect_output(print(inst), "<Archive>")
 
   xdt = data.table(x1 = -1:1, x2 = list(-1, 0, 1))
-  inst$eval_batch(xdt)
+  expect_named(inst$eval_batch(xdt), "y")
   expect_data_table(inst$archive$data, nrows = 3L)
   expect_equal(inst$archive$data$y, c(2, 0, 2))
   expect_identical(inst$archive$n_evals, 3L)
@@ -127,4 +125,3 @@ test_that("OptimInstaceSingleCrit does not work with codomain > 1", {
   expect_error(OptimInstanceSingleCrit$new(objective = OBJ_2D_2D,
     terminator = trm("none")), "Codomain > 1")
 })
-

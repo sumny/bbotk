@@ -32,6 +32,14 @@ Design points to try in search, one per row.}
 }
 }
 
+\section{Progress Bars}{
+
+\verb{$optimize()} supports progress bars via the package \CRANpkg{progressr}
+combined with a \link{Terminator}. Simply wrap the function in
+\code{progressr::with_progress()} to enable them. We recommend to use package
+\CRANpkg{progress} as backend; enable with \code{progressr::handlers("progress")}.
+}
+
 \examples{
 library(paradox)
 library(data.table)
@@ -50,9 +58,11 @@ objective = ObjectiveRFun$new(fun = objective_function,
   domain = domain,
   codomain = codomain)
 terminator = trm("evals", n_evals = 10)
-instance = OptimInstanceSingleCrit$new(objective = objective,
-  search_space = search_space,
-  terminator = terminator)
+instance = OptimInstanceSingleCrit$new(
+ objective = objective,
+ search_space = search_space,
+ terminator = terminator)
+
 
 design = data.table(x = c(0, 1))
 

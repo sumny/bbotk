@@ -19,8 +19,10 @@ opt("cmaes")
 \section{Parameters}{
 
 \describe{
-\item{\code{par}}{\code{numeric()}}
 \item{\code{sigma}}{\code{numeric(1)}}
+\item{\code{start_values}}{\code{character(1)}\cr
+Create \code{random} start values or based on \code{center} of search space? In the
+latter case, it is the center of the parameters before a trafo is applied.}
 }
 
 For the meaning of the control parameters, see \code{\link[adagio:cmaes]{adagio::pureCMAES()}}. Note
@@ -28,9 +30,17 @@ that we have removed all control parameters which refer to the termination of
 the algorithm and where our terminators allow to obtain the same behavior.
 }
 
+\section{Progress Bars}{
+
+\verb{$optimize()} supports progress bars via the package \CRANpkg{progressr}
+combined with a \link{Terminator}. Simply wrap the function in
+\code{progressr::with_progress()} to enable them. We recommend to use package
+\CRANpkg{progress} as backend; enable with \code{progressr::handlers("progress")}.
+}
+
 \examples{
+if(requireNamespace("adagio")) {
 library(paradox)
-library(data.table)
 
 domain = ParamSet$new(list(ParamDbl$new("x", lower = -1, upper = 1)))
 
@@ -45,12 +55,14 @@ objective_function = function(xs) {
 objective = ObjectiveRFun$new(fun = objective_function,
                               domain = domain,
                               codomain = codomain)
-terminator = trm("evals", n_evals = 2)
-instance = OptimInstanceSingleCrit$new(objective = objective,
-                             search_space = search_space,
-                             terminator = terminator)
+terminator = trm("evals", n_evals = 10)
+instance = OptimInstanceSingleCrit$new(
+ objective = objective,
+ search_space = search_space,
+ terminator = terminator)
 
-optimizer = opt("cmaes", par = 1)
+
+optimizer = opt("cmaes")
 
 # Modifies the instance by reference
 optimizer$optimize(instance)
@@ -59,7 +71,8 @@ optimizer$optimize(instance)
 instance$result
 
 # Allows access of data.table of full path of all evaluations
-as.data.table(instance$archive)
+as.data.table(instance$archive$data)
+}
 }
 \section{Super class}{
 \code{\link[bbotk:Optimizer]{bbotk::Optimizer}} -> \code{OptimizerCmaes}

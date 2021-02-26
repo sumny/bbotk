@@ -1,5 +1,3 @@
-context("Archive")
-
 test_that("Archive", {
   a = Archive$new(PS_2D, FUN_2D_CODOMAIN)
   expect_output(print(a), "Archive")
@@ -14,10 +12,18 @@ test_that("Archive", {
   expect_equal(a$data$x_domain, xss_trafoed)
   adt = as.data.table(a)
   expect_data_table(adt, nrows = 1)
+  expect_names(colnames(adt), identical.to = c("x1", "x2", "y", "timestamp", "batch_nr", "x_domain_x1", "x_domain_x2"))
   a$clear()
   expect_data_table(a$data, nrows = 0)
   adt = as.data.table(a)
   expect_data_table(adt, nrows = 0)
+
+  # with no xss_trafoed
+  a$store_x_domain = FALSE
+  a$add_evals(xdt, NULL, ydt)
+  adt = as.data.table(a)
+  expect_data_table(adt, nrows = 1)
+  expect_names(colnames(adt), identical.to = c("x1", "x2", "y", "timestamp", "batch_nr"))
 })
 
 test_that("Archive best works", {
@@ -64,7 +70,7 @@ test_that("Unnest columns", {
   ydt = data.table(y = 1)
   a$add_evals(xdt, xss_trafoed, ydt)
   adt = as.data.table(a)
-  expect_names(colnames(adt), must.include = c("x1", "x2", "y", "timestamp", "batch_nr", "x_domain_x1", "x_domain_x2"))
+  expect_names(colnames(adt), identical.to = c("x1", "x2", "y", "timestamp", "batch_nr", "x_domain_x1", "x_domain_x2"))
   expect_equal(adt$x_domain_x1, 1)
   expect_equal(adt$x_domain_x2, 2)
 

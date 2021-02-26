@@ -42,7 +42,16 @@ have removed all control parameters which refer to the termination of the
 algorithm and where our terminators allow to obtain the same behavior.
 }
 
+\section{Progress Bars}{
+
+\verb{$optimize()} supports progress bars via the package \CRANpkg{progressr}
+combined with a \link{Terminator}. Simply wrap the function in
+\code{progressr::with_progress()} to enable them. We recommend to use package
+\CRANpkg{progress} as backend; enable with \code{progressr::handlers("progress")}.
+}
+
 \examples{
+if(requireNamespace("GenSA")) {
 library(paradox)
 
 domain = ParamSet$new(list(ParamDbl$new("x", lower = -1, upper = 1)))
@@ -59,11 +68,12 @@ objective = ObjectiveRFun$new(fun = objective_function,
                               domain = domain,
                               codomain = codomain)
 terminator = trm("evals", n_evals = 10)
-instance = OptimInstanceSingleCrit$new(objective = objective,
-                             search_space = search_space,
-                             terminator = terminator)
+instance = OptimInstanceSingleCrit$new(
+ objective = objective,
+ search_space = search_space,
+ terminator = terminator)
 
-optimizer = opt("gensa")
+optimizer = opt("cmaes")
 
 # Modifies the instance by reference
 optimizer$optimize(instance)
@@ -73,6 +83,7 @@ instance$result
 
 # Allows access of data.table of full path of all evaluations
 as.data.table(instance$archive$data)
+}
 }
 \section{Super class}{
 \code{\link[bbotk:Optimizer]{bbotk::Optimizer}} -> \code{OptimizerGenSA}

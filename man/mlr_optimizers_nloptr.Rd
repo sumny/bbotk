@@ -17,12 +17,14 @@ Johnson, G S (2020).
 
 \describe{
 \item{\code{algorithm}}{\code{character(1)}}
-\item{\code{x0}}{\code{numeric()}}
 \item{\code{eval_g_ineq}}{\verb{function()}}
 \item{\code{xtol_rel}}{\code{numeric(1)}}
 \item{\code{xtol_abs}}{\code{numeric(1)}}
 \item{\code{ftol_rel}}{\code{numeric(1)}}
 \item{\code{ftol_abs}}{\code{numeric(1)}}
+\item{\code{start_values}}{\code{character(1)}\cr
+Create \code{random} start values or based on \code{center} of search space? In the
+latter case, it is the center of the parameters before a trafo is applied.}
 }
 
 For the meaning of the control parameters, see \code{\link[nloptr:nloptr]{nloptr::nloptr()}} and
@@ -36,10 +38,18 @@ subclasses. The x and function value tolerance termination conditions
 defaults. To deactivate these conditions, set them to \code{-1}.
 }
 
+\section{Progress Bars}{
+
+\verb{$optimize()} supports progress bars via the package \CRANpkg{progressr}
+combined with a \link{Terminator}. Simply wrap the function in
+\code{progressr::with_progress()} to enable them. We recommend to use package
+\CRANpkg{progress} as backend; enable with \code{progressr::handlers("progress")}.
+}
+
 \examples{
 \donttest{
+if(requireNamespace("nloptr")) {
 library(paradox)
-library(data.table)
 
 domain = ParamSet$new(list(ParamDbl$new("x", lower = -1, upper = 1)))
 
@@ -57,11 +67,13 @@ objective = ObjectiveRFun$new(fun = objective_function,
 
 # We use the internal termination criterion xtol_rel
 terminator = trm("none")
-instance = OptimInstanceSingleCrit$new(objective = objective,
-  search_space = search_space,
-  terminator = terminator)
+instance = OptimInstanceSingleCrit$new(
+ objective = objective,
+ search_space = search_space,
+ terminator = terminator)
 
-optimizer = opt("nloptr", x0 = 1, algorithm = "NLOPT_LN_BOBYQA")
+
+optimizer = opt("nloptr", algorithm = "NLOPT_LN_BOBYQA")
 
 # Modifies the instance by reference
 optimizer$optimize(instance)
@@ -71,6 +83,7 @@ instance$result
 
 # Allows access of data.table of full path of all evaluations
 as.data.table(instance$archive)
+}
 }
 }
 \section{Super class}{

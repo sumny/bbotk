@@ -5,9 +5,8 @@ FIXME: QDO stuff, WIP
 Package website: [release](https://bbotk.mlr-org.com/)
 
 <!-- badges: start -->
-[![tic](https://github.com/mlr-org/bbotk/workflows/tic/badge.svg?branch=master)](https://github.com/mlr-org/bbotk/actions)
+[![tic](https://github.com/mlr-org/bbotk/workflows/tic/badge.svg?branch=main)](https://github.com/mlr-org/bbotk/actions)
 [![CRAN Status Badge](https://www.r-pkg.org/badges/version-ago/bbotk)](https://cran.r-project.org/package=bbotk)
-[![codecov.io](https://codecov.io/github/mlr-org/bbotk/coverage.svg?branch=master)](https://codecov.io/gh/mlr-org/bbotk?branch=master)
 [![CodeFactor](https://www.codefactor.io/repository/github/mlr-org/bbotk/badge)](https://www.codefactor.io/repository/github/mlr-org/bbotk)
 <!-- badges: end -->
 

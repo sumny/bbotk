@@ -23,6 +23,8 @@
 #' \item{`design`}{[data.table::data.table]\cr
 #' Design points to try in search, one per row.}
 #' }
+#' 
+#' @template section_progress_bars
 #'
 #' @export
 #' @examples
@@ -43,9 +45,11 @@
 #'   domain = domain,
 #'   codomain = codomain)
 #' terminator = trm("evals", n_evals = 10)
-#' instance = OptimInstanceSingleCrit$new(objective = objective,
-#'   search_space = search_space,
-#'   terminator = terminator)
+#' instance = OptimInstanceSingleCrit$new(
+#'  objective = objective,
+#'  search_space = search_space,
+#'  terminator = terminator)
+#'
 #'
 #' design = data.table(x = c(0, 1))
 #'
@@ -74,7 +78,7 @@ OptimizerDesignPoints = R6Class("OptimizerDesignPoints", inherit = Optimizer,
       ps$values = list(batch_size = 1L, design = NULL)
       super$initialize(
         param_set = ps,
-        param_classes = c("ParamLgl", "ParamInt", "ParamDbl", "ParamFct"),
+        param_classes = c("ParamLgl", "ParamInt", "ParamDbl", "ParamFct", "ParamUty"),
         properties = c("dependencies", "single-crit", "multi-crit")
       )
     }
