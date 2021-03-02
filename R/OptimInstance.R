@@ -67,7 +67,7 @@ OptimInstance = R6Class("OptimInstance",
       } else if (keep_evals == "best") {
         ArchiveBest$new(search_space = self$search_space,
           codomain = objective$codomain, check_values = check_values,
-          store_x_domain = !is_rfundt || self$search_space$has_trafo) 
+          store_x_domain = !is_rfundt || self$search_space$has_trafo)
           # only not store xss if we have RFunDT and not trafo
       }
 

@@ -27,6 +27,7 @@ OptimInstanceQDO = R6Class("OptimInstanceQDO",
     #' Search space that is logged into archive.
     initialize = function(objective, search_space = NULL, terminator,
       check_values = TRUE) {
+
       self$objective = assert_r6(objective, "Objective")
       self$search_space = if (is.null(search_space)) {
         self$objective$domain
@@ -34,16 +35,21 @@ OptimInstanceQDO = R6Class("OptimInstanceQDO",
         assert_param_set(search_space)
       }
       self$terminator = assert_terminator(terminator, self)
-      assert_flag(check_values)
-      self$archive = ArchiveQDO$new(search_space = self$search_space,
-        codomain = objective$codomain, check_values = check_values)
 
-      if (!all(self$search_space$is_number)) {
+      assert_flag(check_values)
+
+      is_rfundt = inherits(self$objective, "ObjectiveRFunDt")
+
+      self$archive = ArchiveQDO$new(search_space = self$search_space,
+        codomain = objective$codomain, check_values = check_values,
+          store_x_domain = !is_rfundt || self$search_space$has_trafo)
+
+      if (!self$search_space$all_numeric) {
         private$.objective_function = objective_error
       } else {
         private$.objective_function = objective_function
-        private$.objective_multiplicator = mult_max_to_min(self$objective$codomain)
       }
+      self$objective_multiplicator = mult_max_to_min(self$objective$codomain)
 
       self$progressor = Progressor$new()
     }

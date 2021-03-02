@@ -8,6 +8,7 @@
 #' @template param_search_space
 #' @template param_xdt
 #' @template param_ydt
+#' @template param_store_x_domain
 #' @export
 ArchiveQDO = R6Class("ArchiveQDO",
   inherit = Archive,
