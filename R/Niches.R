@@ -30,8 +30,6 @@ Niches = R6Class("Niches",
     #' A `list()` that contains a value of the feature function, e.g., `list(g1 = 1, g2 = 2)`.
     #'
     #' @return `character(1)` indicating the niche.
-    # FIXME: should niches actually be factors?
-    # FIXME: this and all below should be moved to the Feature class?
     get_niche = function(gval) {
       private$.get_niche(gval)
     },
@@ -44,7 +42,7 @@ Niches = R6Class("Niches",
     #'
     #' @return `character()` indicating the niches.
     get_niche_many = function(gvals) {
-      map_chr(gvals, private$.get_niche)
+      map(gvals, private$.get_niche)
     },
 
     #' @description
@@ -55,7 +53,7 @@ Niches = R6Class("Niches",
     #'
     #' @return [data.table::data.table] containing the niches.
     get_niche_dt = function(gvaldt) {
-      data.table(niche = map_chr(transpose_list(gvaldt), private$.get_niche))
+      data.table(niche = map(transpose_list(gvaldt), private$.get_niche))
     }
   ),
 
@@ -126,6 +124,7 @@ Ellipsoid2D = R6Class("Ellipsoid2D",
 #'
 #' @description
 #' Describes a niche related to a feature function in QDO based on some boundaries.
+#' FIXME: assert somewhere that feature function ids match boundary ids
 #'
 #' @export
 NicheBoundaries = R6Class("NicheBoundaries",
@@ -194,6 +193,7 @@ NichesBoundaries = R6Class("NichesBoundaries", inherit = Niches,
 
   private = list(
     .get_niche = function(gval) {
+
       #assert_list(gval, types = "numeric", any.missing = FALSE, len = length(self$feature_function_ids))
       #assert_names(names(gval), type = "strict", subset.of = self$feature_function_ids)
       #gval = gval[self$feature_function_ids]  # FIXME: reorder necessary?
@@ -202,8 +202,8 @@ NichesBoundaries = R6Class("NichesBoundaries", inherit = Niches,
         all(pmap_lgl(list(niche$niche_boundaries, gval), function(interval, point) interval[1L] <= point && point < interval[2L]))
       })
       niche = names(self$niches)[is_in_niche]
-      #if (length(niche) > 1L) niche = sample(niche, 1L)
       if (!length(niche)) niche = NA_character_
+
       niche
     }
   )
@@ -253,7 +253,6 @@ check_niches_boundaries = function(x) {
   if (NROW(unique(t(feature_function_ids))) > 1L) {
     return("Niches must be defined on the same feature functions in the same order")
   }
-  # FIXME: check that intervals defining niches are disjunct on the feature function(s)
   return(TRUE)
 }
 

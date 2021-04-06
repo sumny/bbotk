@@ -117,9 +117,11 @@ assert_codomain = function(codomain) {
   # check that "codomain" is
   for (y in codomain$params) {
 
-    # (1) all numeric
-    if (!(y$is_number || y$is_categ)) {
-      stopf("%s in codomain is not numeric or categorical", y$id)
+    # (1) all non-niche numeric
+    if ("niche" %nin% y$tags) {
+      if (!(y$is_number || y$is_categ)) {
+        stopf("%s in codomain is not numeric", y$id)
+      }
     }
 
     # (2) every parameter's tags contain at most one of 'minimize' or 'maximize'

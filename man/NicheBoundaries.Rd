@@ -5,6 +5,7 @@
 \title{NicheBoundaries}
 \description{
 Describes a niche related to a feature function in QDO based on some boundaries.
+FIXME: assert somewhere that feature function ids match boundary ids
 }
 \section{Public fields}{
 \if{html}{\out{<div class="r6-fields">}}

@@ -33,6 +33,15 @@ ArchiveQDO = R6Class("ArchiveQDO",
         stop("No results stored in archive")
       }
 
+      data = self$data
+
+      if ("x_domain" %in% names(data)) {
+        data = data[, x_domain := NULL]  # FIXME: cannot properly recycle NULL x_domain
+      }
+      data$orig = seq_len(NROW(data))
+      data = data[, lapply(.SD, unlist), by = orig]
+      data[, orig := NULL]
+
       batch = if (is.null(batch)) {
         seq_len(self$n_batch)
       } else {
@@ -41,13 +50,13 @@ ArchiveQDO = R6Class("ArchiveQDO",
       batch_nr = NULL # CRAN check
 
       niche = if (is.null(niche)) {
-        unique(self$data[[self$cols_niche]])
+        unique(data[[self$cols_niche]])
       } else {
         assert_string(niche)
       }
 
-      consider = self$data$batch_nr %in% batch & self$data[[self$cols_niche]] %in% niche
-      tab = self$data[consider, ]
+      consider = data$batch_nr %in% batch & data[[self$cols_niche]] %in% niche
+      tab = data[consider, ]
 
       max_to_min = mult_max_to_min(self$codomain)
       y_ids = c(self$codomain$ids(tags = "minimize"), self$codomain$ids(tags = "maximize"))
@@ -56,9 +65,10 @@ ArchiveQDO = R6Class("ArchiveQDO",
         res = unique(tab, by = self$cols_niche)
       } else {
         # FIXME:
-        ymat = t(as.matrix(tab[, self$cols_y, with = FALSE]))
-        ymat = max_to_min * ymat
-        res = tab[!is_dominated(ymat)]
+        stop("Not implemented.")
+        #ymat = t(as.matrix(tab[, self$cols_y, with = FALSE]))
+        #ymat = max_to_min * ymat
+        #res = tab[!is_dominated(ymat)]
       }
 
       return(res)
